@@ -1,8 +1,7 @@
 package bufmgr.policies;
 
-import bufmgr.BufMgr;
+import bufmgr.BufferPoolExceededException;
 import global.PageId;
-import diskmgr.Page;
 
 public abstract class Policy {
 	static enum policies  {
@@ -12,9 +11,9 @@ public abstract class Policy {
 		FIFo;
 	}
 	
-	abstract void replaceCand(PageId pid);
+	public abstract void replaceCand(PageId pid, int idx);
 	
-	abstract PageId getUnPinned();
+	public abstract PageId getUnPinned() throws BufferPoolExceededException;
 	
 	
 	public Policy getPolicy(policies p) {

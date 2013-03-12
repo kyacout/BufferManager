@@ -20,6 +20,7 @@ public class BufMgr {
 	private LinkedList<Integer> hatedMru;
 	private LinkedList<Integer> lovedLru;
 	private DB dataBase;
+	private int p;
 
 	/**
 	 * Create the BufMgr object Allocate pages (frames) for the buffer pool in
@@ -38,6 +39,7 @@ public class BufMgr {
 		hatedMru = new LinkedList<Integer>();
 		lovedLru = new LinkedList<Integer>();
 		dataBase = new DB();
+		p = 0;
 	}
 
 	/**
@@ -88,16 +90,9 @@ public class BufMgr {
 		else {
 			// The frame to replace.
 			int frame;
-
-			// Choose the frame using the love/hate policy, or throw an
-			// exception if
-			// no frame is unpinned.
-			if (!hatedMru.isEmpty())
-				frame = hatedMru.removeFirst();
-			else if (!lovedLru.isEmpty())
-				frame = lovedLru.removeLast();
-			else
-				throw new BufferPoolExceededException();
+			
+			if (p < frames.length)
+				frames[p++]
 
 			// Remove the old frame, and replace it with the new frame. Flush
 			// the page if dirty.
