@@ -16,7 +16,7 @@ public class BufMgr {
 
 	private Page[] frames;
 	private BufferDescriptor[] descriptors;
-	private HashMap<Integer, Integer> pagesUsed;
+	private HashMap<PageId, Integer> pagesUsed;
 	private LinkedList<Integer> hatedMru;
 	private LinkedList<Integer> lovedLru;
 	private DB dataBase;
@@ -34,9 +34,9 @@ public class BufMgr {
 	public BufMgr(int numBufs, String replaceArg) {
 		frames = new Page[numBufs];
 		descriptors = new BufferDescriptor[numBufs];
-		pagesUsed = new HashMap<>();
-		hatedMru = new LinkedList<>();
-		lovedLru = new LinkedList<>();
+		pagesUsed = new HashMap<PageId, Integer>();
+		hatedMru = new LinkedList<Integer>();
+		lovedLru = new LinkedList<Integer>();
 		dataBase = new DB();
 	}
 
@@ -108,7 +108,7 @@ public class BufMgr {
 			dataBase.read_page(pgid, page);
 			frames[frame] = page;
 			descriptors[frame] = new BufferDescriptor(pgid, loved);
-			pagesUsed.put(pgid.pid, frame);
+			pagesUsed.put(pgid, frame);
 		}
 	}
 
@@ -200,9 +200,16 @@ public class BufMgr {
 		int frame = pagesUsed.get(pgid);
 		dataBase.write_page(pgid, frames[frame]);
 	}
-
+	
 	public int getNumUnpinnedBuffers() {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+	
+	public boolean isZeroPin(PageId pid) throws HashEntryNotFoundExcpetion {
+		if (!pagesUsed.containsKey(pid))
+			throw new HashEntryNotFoundExcpetion();
+		
+		return descriptors[pagesUsed.get(pid)].isZeroPin();
 	}
 }
