@@ -4,5 +4,6 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.7"/>
 	<classpathentry kind="lib" path="C:/Users/Khaled/Google Drive/College/Second Year/Second Term/File Structure/Labs/lab 3/BufferManager/javamini_hwk/assign/BufMgr/lib/bufmgrAssign.jar"/>
 	<classpathentry kind="lib" path="D:/College/2nd Year/2nd Term/File Structure/Assignments/buf_man/BufferManager/javamini_hwk/assign/BufMgr/lib/bufmgrAssign.jar"/>
+	<classpathentry kind="lib" path="D:/College/2nd Year/Second Term/File Structure/Labs/lab 3/BufferManager/javamini_hwk/assign/BufMgr/lib/bufmgrAssign.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

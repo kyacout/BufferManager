@@ -1,6 +1,8 @@
 package bufmgr.policies;
 
+import bufmgr.BufMgr;
 import bufmgr.BufferPoolExceededException;
+import bufmgr.HashEntryNotFoundExcpetion;
 import global.PageId;
 
 public abstract class Policy {
@@ -10,27 +12,21 @@ public abstract class Policy {
 		LRU,
 		FIFo;
 	}
+	public abstract void replaceCand(PageId pid, long idx);
 	
-	public abstract void replaceCand(PageId pid, int idx);
-	
-	public abstract PageId getUnPinned() throws BufferPoolExceededException;
+	public abstract PageId getUnPinned() throws BufferPoolExceededException, HashEntryNotFoundExcpetion;
 	
 	
-	public Policy getPolicy(policies p) {
-		switch (p) {
-		case LOVE_HATE:
+	public Policy getPolicy(String p) {
+		if(p.matches("love hate"))
 			return new LoveHatePolicy();
-			
-		case MRU:
+		else if(p.matches("mru"))
 			return new MruPolicy();
-			
-		case LRU:
+		else if(p.matches("lru"))
 			return new LruPolicy();
-			
-		case FIFo:
+		else if(p.matches("fifo"))
 			return new FifoPolicy();
-
-		}
-		throw new IllegalArgumentException();
+		else
+			throw new IllegalArgumentException();
 	}
 }
