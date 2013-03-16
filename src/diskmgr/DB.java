@@ -3,7 +3,6 @@
 package diskmgr;
 
 import java.io.*;
-import bufmgr.*;
 import global.*;
 
 public class DB implements GlobalConst {
@@ -839,7 +838,7 @@ public class DB implements GlobalConst {
 			throws DiskMgrException {
 
 		try {
-			SystemDefs.JavabaseBM.pinPage(pageno, page, emptyPage, false);
+			SystemDefs.JavabaseBM.pinPage(pageno, page, emptyPage);
 		} catch (Exception e) {
 			throw new DiskMgrException(e, "DB.java: pinPage() failed");
 		}
@@ -905,7 +904,7 @@ class DBHeaderPage implements PageUsedBytes, GlobalConst {
 		pageno.pid = INVALID_PAGE;
 		setNextPage(pageno);
 
-		PageId temppid = getNextPage();
+		getNextPage();
 
 		int num_entries = (MAX_SPACE - pageusedbytes) / SIZE_OF_FILE_ENTRY;
 		setNumOfEntries(num_entries);

@@ -7,11 +7,13 @@ public class BufferDescriptor {
 	private int pin_count;
 	private boolean dirtybit;
 	private boolean isLoved;
+	private long counter;
 	
-	BufferDescriptor(PageId pagenumber, boolean loved) {
+	BufferDescriptor(PageId pagenumber, long counter) {
 		pin_count = 1;
 		this.pagenumber = pagenumber;
-		isLoved = loved;
+		isLoved = false;
+		this.counter = counter;
 	}
 
 	public PageId getPagenumber() {
@@ -22,20 +24,17 @@ public class BufferDescriptor {
 		return pin_count == 0 ? true : false;
 	}
 
-	public void incrementPin_count(boolean loved) {
-		if (isZeroPin())
-			isLoved = loved;
-		else
-			isLoved |= loved;
+	public void incrementPin_count() {
 		pin_count++;
 	}
 	
-	public void decrementPin_count(boolean dirty) throws PageUnpinnedExcpetion {
+	public void decrementPin_count(boolean dirty, boolean loved) throws PageUnpinnedExcpetion {
 		if (isZeroPin())
 			throw new PageUnpinnedExcpetion();
 		
 		pin_count--;
 		dirtybit |= dirty;
+		isLoved |= loved;
 	}
 
 	public boolean isDirty() {
@@ -44,5 +43,9 @@ public class BufferDescriptor {
 
 	public boolean isLoved() {
 		return isLoved;
+	}
+	
+	public long getCounter() {
+		return counter;
 	}
 }

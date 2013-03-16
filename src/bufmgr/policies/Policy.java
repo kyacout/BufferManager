@@ -15,8 +15,7 @@ public abstract class Policy {
 	public abstract void replaceCand(PageId pid, long idx);
 	
 	public abstract PageId getUnPinned() throws BufferPoolExceededException, HashEntryNotFoundExcpetion;
-	
-	
+
 	public Policy getPolicy(String p) {
 		if(p.matches("love hate"))
 			return new LoveHatePolicy();

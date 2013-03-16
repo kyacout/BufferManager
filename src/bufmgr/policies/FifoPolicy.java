@@ -1,5 +1,6 @@
 package bufmgr.policies;
 
+import java.util.HashMap;
 import java.util.PriorityQueue;
 
 import global.PageId;
@@ -24,7 +25,9 @@ public class FifoPolicy extends Policy{
 		
 	}
 	
-	PriorityQueue<Node> unPinnedPQ = new PriorityQueue<FifoPolicy.Node>();
+	private PriorityQueue<Node> unPinnedPQ = new PriorityQueue<FifoPolicy.Node>();
+	HashMap<PageId, Integer> numOfOcc = new HashMap<PageId, Integer>();
+
 	
 	@Override
 	public void replaceCand(PageId pid, long idx) {
@@ -40,10 +43,14 @@ public class FifoPolicy extends Policy{
 		while(!unPinnedPQ.isEmpty()){
 			currPageId = unPinnedPQ.poll();
 			
-			if(SystemDefs.JavabaseBM.isZeroPin(currPageId.pid)){
-				f = true;
-				break;
+			if(numOfOcc.get(currPageId) == 1){
+				if(SystemDefs.JavabaseBM.pageDescriptor(currPageId.pid).isZeroPin()){
+					f = true;
+					break;
+				}
 			}
+			numOfOcc.put(currPageId.pid, numOfOcc.get(currPageId) - 1);
+			
 			
 		}
 		if(!f)

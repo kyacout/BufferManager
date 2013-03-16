@@ -4,13 +4,15 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import diskmgr.DB;
+import bufmgr.policies.Policy;
+
 import diskmgr.DiskMgrException;
 import diskmgr.FileIOException;
 import diskmgr.InvalidPageNumberException;
 import diskmgr.InvalidRunSizeException;
 import diskmgr.Page;
 import global.PageId;
+import global.SystemDefs;
 
 public class BufMgr {
 
@@ -19,8 +21,9 @@ public class BufMgr {
 	private HashMap<PageId, Integer> pagesUsed;
 	private LinkedList<Integer> hatedMru;
 	private LinkedList<Integer> lovedLru;
-	private DB dataBase;
 	private int p;
+	private Policy policy;
+	private long pinnedPages;
 
 	/**
 	 * Create the BufMgr object Allocate pages (frames) for the buffer pool in
@@ -38,8 +41,9 @@ public class BufMgr {
 		pagesUsed = new HashMap<PageId, Integer>();
 		hatedMru = new LinkedList<Integer>();
 		lovedLru = new LinkedList<Integer>();
-		dataBase = new DB();
 		p = 0;
+		policy = Policy.getPolicy(replaceArg);
+		pinnedPages = 0;
 	}
 
 	/**
@@ -64,7 +68,7 @@ public class BufMgr {
 	 * @throws InvalidPageNumberException
 	 * @throws BufferPoolExceededException
 	 */
-	public void pinPage(PageId pgid, Page page, boolean emptyPage, boolean loved)
+	public void pinPage(PageId pgid, Page page, boolean emptyPage)
 			throws InvalidPageNumberException, FileIOException, IOException,
 			BufferPoolExceededException {
 		// If page is found in buffer.
@@ -82,17 +86,19 @@ public class BufMgr {
 
 			// update the frame, and make the page reference the page with the
 			// given id.
-			descriptors[frame].incrementPin_count(loved);
+			descriptors[frame].incrementPin_count();
 			page = frames[frame];
 		}
 
 		// If the page is not found in the buffer.
 		else {
-			// The frame to replace.
+			SystemDefs.JavabaseDB.read_page(pgid, page);
 			int frame;
 			
 			if (p < frames.length)
-				frames[p++]
+				frame = p++;
+			else
+				frame = pagesUsed.get(policy.getUnPinned());
 
 			// Remove the old frame, and replace it with the new frame. Flush
 			// the page if dirty.
@@ -100,9 +106,8 @@ public class BufMgr {
 				flushPage(new PageId(frame));
 			pagesUsed.remove(frame);
 
-			dataBase.read_page(pgid, page);
 			frames[frame] = page;
-			descriptors[frame] = new BufferDescriptor(pgid, loved);
+			descriptors[frame] = new BufferDescriptor(pgid, pinnedPages++);
 			pagesUsed.put(pgid, frame);
 		}
 	}
@@ -128,14 +133,10 @@ public class BufMgr {
 			throw new HashEntryNotFoundExcpetion();
 
 		int frame = pagesUsed.get(pgid.pid);
-		descriptors[frame].decrementPin_count(dirty);
+		descriptors[frame].decrementPin_count(dirty, loved);
 
-		if (descriptors[frame].isZeroPin()) {
-			if (descriptors[frame].isLoved())
-				lovedLru.add(pgid.pid);
-			else
-				hatedMru.add(pgid.pid);
-		}
+		if (descriptors[frame].isZeroPin()) 
+			policy.replaceCand(pgid, descriptors[frame].getCounter());
 	}
 
 	/**
@@ -171,7 +172,7 @@ public class BufMgr {
 	public void freePage(PageId pgid) throws InvalidRunSizeException,
 			InvalidPageNumberException, FileIOException, DiskMgrException,
 			IOException {
-		dataBase.deallocate_page(pgid);
+		SystemDefs.JavabaseDB.deallocate_page(pgid);
 
 		int frame = pagesUsed.get(pgid);
 
@@ -193,18 +194,17 @@ public class BufMgr {
 	public void flushPage(PageId pgid) throws InvalidPageNumberException,
 			FileIOException, IOException {
 		int frame = pagesUsed.get(pgid);
-		dataBase.write_page(pgid, frames[frame]);
+		SystemDefs.JavabaseDB.write_page(pgid, frames[frame]);
 	}
 	
 	public int getNumUnpinnedBuffers() {
-		// TODO Auto-generated method stub
-		return 0;
+		return frames.length - p;
 	}
 	
-	public boolean isZeroPin(PageId pid) throws HashEntryNotFoundExcpetion {
+	public BufferDescriptor pageDescriptor(PageId pid) throws HashEntryNotFoundExcpetion {
 		if (!pagesUsed.containsKey(pid))
 			throw new HashEntryNotFoundExcpetion();
 		
-		return descriptors[pagesUsed.get(pid)].isZeroPin();
+		return descriptors[pagesUsed.get(pid)];
 	}
 }
