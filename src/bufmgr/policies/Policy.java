@@ -11,12 +11,12 @@ public abstract class Policy {
 		FIFo;
 	}
 	
-	public abstract void replaceCand(PageId pid, int idx);
+	public abstract void replaceCand(PageId pid, long idx);
 	
 	public abstract PageId getUnPinned() throws BufferPoolExceededException;
 	
 	
-	public Policy getPolicy(policies p) {
+	public static Policy getPolicy(String p) {
 		switch (p) {
 		case LOVE_HATE:
 			return new LoveHatePolicy();
