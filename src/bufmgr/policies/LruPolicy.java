@@ -48,6 +48,17 @@ public class LruPolicy extends Policy{
 			return currPageId;
 	}
 	
+	@Override
+	public int numOfUnPinned() {
+		int counter = 0;
+		for (Integer value : numOfOcc.values())
+			if(value > 0)
+				counter++;
+		
+		return counter;
+	}
+	
+	@Override
 	public boolean isEmpty(){
 		return unPinnedQueue.isEmpty();
 	}

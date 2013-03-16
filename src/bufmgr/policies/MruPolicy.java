@@ -4,6 +4,7 @@ import global.PageId;
 import global.SystemDefs;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Stack;
 
 import bufmgr.BufferPoolExceededException;
@@ -44,10 +45,20 @@ public class MruPolicy extends Policy{
 		else
 			return currPageId;
 	}
+
+	@Override
+	public int numOfUnPinned() {
+		int counter = 0;
+		for (Integer value : numOfOcc.values())
+			if(value > 0)
+				counter++;
+		
+		return counter;
+	}
 	
+	@Override
 	public boolean isEmpty(){
 		return unPinnedStack.isEmpty();
 	}
-	
 	
 }

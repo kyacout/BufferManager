@@ -42,8 +42,8 @@ public class LoveHatePolicy extends Policy{
 		if(f)
 			return currPageId;
 		else{
-			while(!mru.isEmpty()){
-				currPageId = mru.getUnPinned();
+			while(!lru.isEmpty()){
+				currPageId = lru.getUnPinned();
 				
 				if(SystemDefs.JavabaseBM.pageDescriptor(currPageId).isLoved()){
 					f = true;
@@ -55,6 +55,11 @@ public class LoveHatePolicy extends Policy{
 			else
 				throw new BufferPoolExceededException();
 		}
+	}
+	
+	@Override
+	public boolean isEmpty(){
+		return lru.isEmpty() && mru.isEmpty();
 	}
 	
 }
